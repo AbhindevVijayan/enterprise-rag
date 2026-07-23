@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'drf_spectacular',
     'django_filters',
     'apps.accounts',
+    'apps.documents',
 ]
 
 MIDDLEWARE = [
