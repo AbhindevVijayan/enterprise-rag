@@ -44,6 +44,12 @@ urlpatterns = [
         name="redoc",
     ),
     
+    path(
+    "api/v1/documents/",
+    include("apps.documents.api.urls"),
+),
+    
+    
 ]
 
 if settings.DEBUG:
