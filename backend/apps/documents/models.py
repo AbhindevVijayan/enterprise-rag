@@ -18,6 +18,10 @@ class Document(models.Model):
     title = models.CharField(max_length=255)
 
     file = models.FileField(upload_to="documents/")
+    extracted_text = models.TextField(
+       blank=True,
+       default="",
+     )
 
     file_size = models.BigIntegerField()
 
