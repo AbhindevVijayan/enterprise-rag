@@ -3,12 +3,13 @@ from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.permissions import IsAuthenticated
 from drf_spectacular.utils import extend_schema
 from apps.documents.services.search_service import semantic_search
+from rest_framework.response import Response
 from .serializers import SearchRequestSerializer
 from .serializers import (
     DocumentUploadRequestSerializer,
     DocumentSerializer,
 )
-
+from apps.documents.services.llm_service import generate_answer
 
 @extend_schema(
     request=DocumentUploadRequestSerializer,
@@ -36,8 +37,21 @@ class SearchView(generics.GenericAPIView):
 
         results = semantic_search(question)
 
-        return Response(
-           {
-                "results": results
-           }
-    )
+        context = "\n\n".join(
+            item["content"]
+            for item in results
+        )
+
+        try:
+            answer = generate_answer(
+                question,
+                context,
+            )
+        except Exception as e:
+            answer = "Unable to generate AI answer."
+            print(e)
+
+        return Response({
+            "answer": answer,
+            "results": results,
+        })
