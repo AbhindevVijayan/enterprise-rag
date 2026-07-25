@@ -39,3 +39,24 @@ class Document(models.Model):
 
     def __str__(self):
         return self.title
+    
+class DocumentChunk(models.Model):
+    document = models.ForeignKey(
+        Document,
+        on_delete=models.CASCADE,
+        related_name="chunks",
+    )
+
+    chunk_index = models.PositiveIntegerField()
+
+    content = models.TextField()
+
+    created_at = models.DateTimeField(
+        auto_now_add=True
+    )
+
+    class Meta:
+        ordering = ["chunk_index"]
+
+    def __str__(self):
+        return f"{self.document.title} - Chunk {self.chunk_index}"

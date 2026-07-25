@@ -2,6 +2,14 @@ from rest_framework import serializers
 
 from apps.documents.models import Document
 from apps.documents.services.pdf_service import extract_text_from_pdf
+from apps.documents.models import (
+    Document,
+    DocumentChunk,
+)
+
+from apps.documents.services.chunk_service import split_text
+
+
 
 
 class DocumentUploadRequestSerializer(serializers.Serializer):
@@ -37,7 +45,16 @@ class DocumentUploadRequestSerializer(serializers.Serializer):
         document.extracted_text = text
         document.save()
 
-        return document
+        chunks = split_text(text)
+
+        for index, chunk in enumerate(chunks):
+            DocumentChunk.objects.create(
+                document=document,
+                chunk_index=index,
+                content=chunk,
+           )
+
+            return document
 
 
 class DocumentSerializer(serializers.ModelSerializer):
