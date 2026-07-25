@@ -29,6 +29,10 @@ class DocumentUploadRequestSerializer(serializers.Serializer):
 
         return file
 
+
+
+
+
     def create(self, validated_data):
         uploaded_file = validated_data["file"]
 
@@ -46,15 +50,25 @@ class DocumentUploadRequestSerializer(serializers.Serializer):
         document.save()
 
         chunks = split_text(text)
-
+        
+        print(f"Total chunks: {len(chunks)}")
+        
         for index, chunk in enumerate(chunks):
+            print(f"Creating chunk {index}")
+            
             DocumentChunk.objects.create(
                 document=document,
                 chunk_index=index,
                 content=chunk,
-           )
+            )
 
-            return document
+        return document
+
+
+
+
+
+
 
 
 class DocumentSerializer(serializers.ModelSerializer):
@@ -69,3 +83,14 @@ class DocumentSerializer(serializers.ModelSerializer):
             "status",
             "created_at",
         ]
+        
+        
+
+class SearchRequestSerializer(serializers.Serializer):
+    question = serializers.CharField()
+
+
+class SearchResultSerializer(serializers.Serializer):
+    chunk_index = serializers.IntegerField()
+    score = serializers.FloatField()
+    content = serializers.CharField()
