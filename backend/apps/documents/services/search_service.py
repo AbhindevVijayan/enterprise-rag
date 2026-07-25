@@ -6,14 +6,24 @@ from apps.documents.services.vector_service import (
     search,
 )
 
+def semantic_search(
+    question: str,
+    k: int = 5,
+    document_id=None,
+):
+    """
+    Perform semantic search over document chunks.
+    """
 
-def semantic_search(question: str, k: int = 5):
-    """
-    Perform semantic search over all document chunks.
-    """
+    queryset = DocumentChunk.objects.all()
+
+    if document_id:
+        queryset = queryset.filter(
+            document_id=document_id
+        )
 
     chunks = list(
-        DocumentChunk.objects.all().order_by("id")
+        queryset.order_by("id")
     )
 
     if not chunks:

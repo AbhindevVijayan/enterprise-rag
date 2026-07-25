@@ -34,8 +34,9 @@ class SearchView(generics.GenericAPIView):
         serializer.is_valid(raise_exception=True)
 
         question = serializer.validated_data["question"]
+        document_id = serializer.validated_data.get("document_id")
 
-        results = semantic_search(question)
+        results = semantic_search(question, document_id=document_id,)
 
         context = "\n\n".join(
             item["content"]
