@@ -41,20 +41,22 @@ Answer:
 """
 
     try:
+        print("Calling Gemini...")
         response = client.models.generate_content(
             model="models/gemini-3.6-flash",
             contents=prompt,
         )
+        print("========== GEMINI RESPONSE ==========")
+        print(response)
+        print("=====================================")
+        print("Response text:", getattr(response, "text", None))
 
-        if (
-            response
-            and hasattr(response, "text")
-            and response.text
-        ):
-            return response.text.strip()
+        if response and getattr(response, "text", None):
+           return response.text.strip()
 
+        print("No text returned by Gemini.")
         return "I couldn't generate an answer."
-
+  
     except Exception as e:
         import traceback
         traceback.print_exc()
