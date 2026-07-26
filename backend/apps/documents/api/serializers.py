@@ -93,7 +93,11 @@ class DocumentSerializer(serializers.ModelSerializer):
 
 class SearchRequestSerializer(serializers.Serializer):
     question = serializers.CharField()
-    document_id = serializers.IntegerField(required=False)
+    document_id = serializers.IntegerField(
+        required=False,
+        allow_null=True,
+                                           
+    )
 
 
 class SearchResultSerializer(serializers.Serializer):
