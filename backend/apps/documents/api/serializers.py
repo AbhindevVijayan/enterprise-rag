@@ -8,8 +8,8 @@ from apps.documents.models import (
 )
 
 from apps.documents.services.chunk_service import split_text
-
-
+from apps.documents.services.embedding_service import generate_embedding
+from apps.documents.services.faiss_store import add_embedding
 
 
 class DocumentUploadRequestSerializer(serializers.Serializer):
@@ -55,12 +55,17 @@ class DocumentUploadRequestSerializer(serializers.Serializer):
         
         for index, chunk in enumerate(chunks):
             print(f"Creating chunk {index}")
+           
+            embedding = generate_embedding(chunk)
             
             DocumentChunk.objects.create(
-                document=document,
-                chunk_index=index,
-                content=chunk,
+                 document=document,
+                 chunk_index=index,
+                 content=chunk,
+                 embedding=embedding.tolist(),
             )
+
+            add_embedding(embedding)
 
         return document
 

@@ -5,6 +5,7 @@ from apps.documents.services.vector_service import (
     add_embeddings,
     search,
 )
+import numpy as np
 
 def semantic_search(
     question: str,
@@ -29,11 +30,20 @@ def semantic_search(
     if not chunks:
         return []
 
-    embeddings = [
-        generate_embedding(chunk.content)
-        for chunk in chunks
-    ]
+    embeddings = []
 
+    for chunk in chunks:
+        if chunk.embedding:
+           embeddings.append(
+            np.array(chunk.embedding, dtype="float32")
+        )
+    else:
+        embeddings.append(
+            np.array(
+                generate_embedding(chunk.content),
+                dtype="float32",
+            )
+        )
     index = create_index()
 
     add_embeddings(index, embeddings)
