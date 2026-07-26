@@ -56,5 +56,6 @@ Answer:
         return "I couldn't generate an answer."
 
     except Exception as e:
-        print("Gemini Error:", e)
-        return "An error occurred while generating the answer."
+        import traceback
+        traceback.print_exc()
+        return f"Gemini Error: {e}"
