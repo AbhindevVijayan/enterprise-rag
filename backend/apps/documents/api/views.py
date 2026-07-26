@@ -65,8 +65,11 @@ class SearchView(generics.GenericAPIView):
 
 class DocumentDeleteView(generics.DestroyAPIView):
     permission_classes = [IsAuthenticated]
-
+    serializer_class = DocumentSerializer 
     def get_queryset(self):
+        if getattr(self, "swagger_fake_view", False):
+             return Document.objects.none()
+        
         return Document.objects.filter(
             owner=self.request.user
         )
@@ -75,3 +78,31 @@ class DocumentDeleteView(generics.DestroyAPIView):
         instance.delete()
 
         rebuild_index()
+        
+class DocumentListView(generics.ListAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = DocumentSerializer
+
+    def get_queryset(self):
+        
+        if getattr(self, "swagger_fake_view", False):
+            return Document.objects.none()
+      
+        return Document.objects.filter(
+            owner=self.request.user
+        ).order_by("-created_at")
+        
+
+
+class DocumentDetailView(generics.RetrieveAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = DocumentSerializer
+
+    def get_queryset(self):
+        
+        if getattr(self, "swagger_fake_view", False):
+            return Document.objects.none()
+
+        return Document.objects.filter(
+            owner=self.request.user
+        )

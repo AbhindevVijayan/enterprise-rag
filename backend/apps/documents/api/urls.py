@@ -2,7 +2,8 @@ from django.urls import path
 from .views import SearchView
 from .views import( DocumentUploadView,
                     DocumentDeleteView,
-                    
+                    DocumentListView,
+                    DocumentDetailView,
                    )
 
 urlpatterns = [
@@ -24,6 +25,16 @@ urlpatterns = [
         name="document-delete",
     ),
     
+    path(
+        "",
+        DocumentListView.as_view(),
+        name="document-list",
+    ),
     
+    path(
+        "<int:pk>/detail/",
+         DocumentDetailView.as_view(),
+         name="document-detail",
+    ),
     
 ]

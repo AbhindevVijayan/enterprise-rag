@@ -8,5 +8,5 @@ def generate_embedding(text: str) -> list[float]:
     Generate an embedding for the given text.
     """
     embedding = model.encode(text)
-
+    print(len(embedding))
     return embedding.tolist()

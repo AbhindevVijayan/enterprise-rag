@@ -51,10 +51,10 @@ class DocumentUploadRequestSerializer(serializers.Serializer):
 
         chunks = split_text(text)
         
-        print(f"Total chunks: {len(chunks)}")
+        
         
         for index, chunk in enumerate(chunks):
-            print(f"Creating chunk {index}")
+            
            
             embedding = generate_embedding(chunk)
             
@@ -62,7 +62,7 @@ class DocumentUploadRequestSerializer(serializers.Serializer):
                  document=document,
                  chunk_index=index,
                  content=chunk,
-                 embedding=embedding.tolist(),
+                 embedding=embedding,
             )
 
             add_embedding(embedding)
