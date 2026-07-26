@@ -92,13 +92,18 @@ def rebuild_index():
             )
         else:
             embedding = generate_embedding(
-                chunk.content
-            )
+               chunk.content
+           )
 
-            chunk.embedding = embedding.tolist()
+            chunk.embedding = embedding
             chunk.save()
 
-            embeddings.append(embedding)
+            embeddings.append(
+                np.array(
+                    embedding,
+                    dtype="float32",
+                )
+            )
 
     index = faiss.IndexFlatL2(
         len(embeddings[0])
