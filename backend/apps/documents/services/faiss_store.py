@@ -16,7 +16,9 @@ INDEX_PATH = os.path.join(
 )
 
 
-def load_index(dimension=768):
+def load_index(dimension=384):
+    print("FAISS INDEX PATH:", INDEX_PATH)
+    
     if os.path.exists(INDEX_PATH):
         return faiss.read_index(INDEX_PATH)
 
@@ -35,7 +37,9 @@ def add_embedding(embedding):
     index = load_index(
         len(embedding)
     )
-
+    print("Index dimension:", index.d)
+    print("Embedding dimension:", len(embedding))
+    
     embedding = np.array(
         [embedding],
         dtype="float32",
@@ -75,7 +79,7 @@ def rebuild_index():
     chunks = DocumentChunk.objects.all().order_by("id")
 
     if not chunks.exists():
-        index = faiss.IndexFlatL2(768)
+        index = faiss.IndexFlatL2(384)
         save_index(index)
         return
 
