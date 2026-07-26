@@ -1,6 +1,9 @@
 from django.urls import path
 from .views import SearchView
-from .views import DocumentUploadView
+from .views import( DocumentUploadView,
+                    DocumentDeleteView,
+                    
+                   )
 
 urlpatterns = [
     path(
@@ -10,8 +13,17 @@ urlpatterns = [
     ),
     
     path(
-    "search/",
-    SearchView.as_view(),
-    name="semantic-search",
-),
+        "search/",
+         SearchView.as_view(),
+         name="semantic-search",
+    ),
+    
+    path(
+        "<int:pk>/",
+        DocumentDeleteView.as_view(),
+        name="document-delete",
+    ),
+    
+    
+    
 ]

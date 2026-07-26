@@ -10,6 +10,9 @@ from .serializers import (
     DocumentSerializer,
 )
 from apps.documents.services.llm_service import generate_answer
+from apps.documents.services.faiss_store import rebuild_index
+from apps.documents.models import Document
+
 
 @extend_schema(
     request=DocumentUploadRequestSerializer,
@@ -56,3 +59,19 @@ class SearchView(generics.GenericAPIView):
             "answer": answer,
             "results": results,
         })
+        
+        
+
+
+class DocumentDeleteView(generics.DestroyAPIView):
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return Document.objects.filter(
+            owner=self.request.user
+        )
+
+    def perform_destroy(self, instance):
+        instance.delete()
+
+        rebuild_index()

@@ -1,10 +1,6 @@
 from apps.documents.models import DocumentChunk
 from apps.documents.services.embedding_service import generate_embedding
-from apps.documents.services.vector_service import (
-    create_index,
-    add_embeddings,
-    search,
-)
+from apps.documents.services.faiss_store import search_index
 import numpy as np
 
 def semantic_search(
@@ -30,32 +26,12 @@ def semantic_search(
     if not chunks:
         return []
 
-    embeddings = []
-
-    for chunk in chunks:
-        if chunk.embedding:
-           embeddings.append(
-            np.array(chunk.embedding, dtype="float32")
-        )
-    else:
-        embeddings.append(
-            np.array(
-                generate_embedding(chunk.content),
-                dtype="float32",
-            )
-        )
-    index = create_index()
-
-    add_embeddings(index, embeddings)
-
     query_embedding = generate_embedding(question)
 
-    distances, indices = search(
-        index,
+    distances, indices = search_index(
         query_embedding,
         k=min(k, len(chunks)),
     )
-
     results = []
 
     for distance, idx in zip(

@@ -1,6 +1,8 @@
 import os
 import faiss
 import numpy as np
+from apps.documents.models import DocumentChunk
+from apps.documents.services.embedding_service import generate_embedding
 
 BASE_DIR = os.path.dirname(
     os.path.dirname(
@@ -64,3 +66,49 @@ def search_index(query_embedding, k=5):
     )
 
     return distances, indices
+
+def rebuild_index():
+    """
+    Rebuild the entire FAISS index from all stored document chunks.
+    """
+
+    chunks = DocumentChunk.objects.all().order_by("id")
+
+    if not chunks.exists():
+        index = faiss.IndexFlatL2(768)
+        save_index(index)
+        return
+
+    embeddings = []
+
+    for chunk in chunks:
+
+        if chunk.embedding:
+            embeddings.append(
+                np.array(
+                    chunk.embedding,
+                    dtype="float32",
+                )
+            )
+        else:
+            embedding = generate_embedding(
+                chunk.content
+            )
+
+            chunk.embedding = embedding.tolist()
+            chunk.save()
+
+            embeddings.append(embedding)
+
+    index = faiss.IndexFlatL2(
+        len(embeddings[0])
+    )
+
+    index.add(
+        np.array(
+            embeddings,
+            dtype="float32",
+        )
+    )
+
+    save_index(index)
