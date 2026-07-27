@@ -12,7 +12,8 @@ from .serializers import (
 from apps.documents.services.llm_service import generate_answer
 from apps.documents.services.faiss_store import rebuild_index
 from apps.documents.models import Document
-
+import os
+from apps.documents.services.faiss_store import get_index_path
 
 @extend_schema(
     request=DocumentUploadRequestSerializer,
@@ -75,9 +76,17 @@ class DocumentDeleteView(generics.DestroyAPIView):
         )
 
     def perform_destroy(self, instance):
-        instance.delete()
+              # Delete uploaded PDF
+        if instance.file and os.path.exists(instance.file.path):
+           os.remove(instance.file.path)
 
-        rebuild_index()
+            # Delete FAISS index
+        index_path = get_index_path(instance.id)
+
+        if os.path.exists(index_path):
+            os.remove(index_path)
+           # Delete database records
+        instance.delete()
         
 class DocumentListView(generics.ListAPIView):
     permission_classes = [IsAuthenticated]

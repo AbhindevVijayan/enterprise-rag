@@ -1,8 +1,9 @@
 import os
 import faiss
 import numpy as np
-from apps.documents.models import DocumentChunk
+from apps.documents.models import DocumentChunk , Document
 from apps.documents.services.embedding_service import generate_embedding
+
 
 BASE_DIR = os.path.dirname(
     os.path.dirname(
@@ -10,31 +11,45 @@ BASE_DIR = os.path.dirname(
     )
 )
 
-INDEX_PATH = os.path.join(
+INDEX_DIR = os.path.join(
     BASE_DIR,
-    "faiss_index.bin",
+    "storage",
+    "faiss_indexes",
 )
 
+os.makedirs(INDEX_DIR, exist_ok=True)
 
-def load_index(dimension=384):
-    print("FAISS INDEX PATH:", INDEX_PATH)
-    
-    if os.path.exists(INDEX_PATH):
-        return faiss.read_index(INDEX_PATH)
+def get_index_path(document_id):
+    return os.path.join(
+        INDEX_DIR,
+        f"{document_id}.bin",
+    )
+
+
+def load_index(document_id, dimension=384):
+
+    index_path = get_index_path(document_id)
+
+    if os.path.exists(index_path):
+        return faiss.read_index(index_path)
 
     return faiss.IndexFlatL2(dimension)
 
 
-def save_index(index):
-    faiss.write_index(index, INDEX_PATH)
-
-
-def add_embedding(embedding):
+def save_index(index, document_id):
+    print("Saving index to:", get_index_path(document_id))
+    faiss.write_index(
+        index,
+        get_index_path(document_id),
+    )
+    
+def add_embedding(document_id, embedding):
     """
-    Add one embedding to the FAISS index.
+    Add one embedding to a document-specific FAISS index.
     """
 
     index = load_index(
+        document_id,
         len(embedding)
     )
     print("Index dimension:", index.d)
@@ -47,16 +62,25 @@ def add_embedding(embedding):
 
     index.add(embedding)
 
-    save_index(index)
+    save_index(index,  document_id,)
 
 
-def search_index(query_embedding, k=5):
+def search_index(document_id, query_embedding, k=5):
     """
-    Search the stored FAISS index.
+    Search a document-specific FAISS index.
     """
+
+    index_path = get_index_path(document_id)
+
+    if not os.path.exists(index_path):
+        return (
+            np.array([[]], dtype="float32"),
+            np.array([[]], dtype="int64"),
+        )
 
     index = load_index(
-        len(query_embedding)
+        document_id,
+        len(query_embedding),
     )
 
     query_embedding = np.array(
@@ -71,36 +95,32 @@ def search_index(query_embedding, k=5):
 
     return distances, indices
 
+
+
 def rebuild_index():
     """
-    Rebuild the entire FAISS index from all stored document chunks.
+    Rebuild a separate FAISS index for every document.
     """
 
-    chunks = DocumentChunk.objects.all().order_by("id")
+    for document in Document.objects.all():
 
-    if not chunks.exists():
-        index = faiss.IndexFlatL2(384)
-        save_index(index)
-        return
+        chunks = DocumentChunk.objects.filter(
+            document=document
+        ).order_by("id")
 
-    embeddings = []
+        if not chunks.exists():
+            continue
 
-    for chunk in chunks:
+        embeddings = []
 
-        if chunk.embedding:
-            embeddings.append(
-                np.array(
-                    chunk.embedding,
-                    dtype="float32",
-                )
-            )
-        else:
-            embedding = generate_embedding(
-               chunk.content
-           )
+        for chunk in chunks:
 
-            chunk.embedding = embedding
-            chunk.save()
+            if chunk.embedding:
+                embedding = chunk.embedding
+            else:
+                embedding = generate_embedding(chunk.content)
+                chunk.embedding = embedding
+                chunk.save()
 
             embeddings.append(
                 np.array(
@@ -109,15 +129,18 @@ def rebuild_index():
                 )
             )
 
-    index = faiss.IndexFlatL2(
-        len(embeddings[0])
-    )
-
-    index.add(
-        np.array(
-            embeddings,
-            dtype="float32",
+        index = faiss.IndexFlatL2(
+            len(embeddings[0])
         )
-    )
 
-    save_index(index)
+        index.add(
+            np.array(
+                embeddings,
+                dtype="float32",
+            )
+        )
+
+        save_index(
+            index,
+            document.id,
+        )

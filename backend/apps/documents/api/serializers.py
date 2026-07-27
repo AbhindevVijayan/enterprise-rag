@@ -65,7 +65,9 @@ class DocumentUploadRequestSerializer(serializers.Serializer):
                  embedding=embedding,
             )
 
-            add_embedding(embedding)
+            add_embedding(document.id,
+                          embedding,
+                          )
 
         return document
 
