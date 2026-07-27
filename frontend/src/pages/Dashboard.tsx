@@ -2,16 +2,23 @@ import { useEffect, useState } from "react";
 import {
     getDocuments,
     type Document,
+    deleteDocument,
 
 } from "../services/documentService";
 
 import { useRef } from "react";
 import { uploadDocument } from "../services/documentService";
-
+import { askQuestion } from "../services/searchService";
+import { useNavigate } from "react-router-dom";
+import ReactMarkdown from "react-markdown";
 
 export default function Dashboard() {
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [documents, setDocuments] = useState<Document[]>([]);
+    const [question, setQuestion] = useState("");
+    const [answer, setAnswer] = useState("");
+    const [loading, setLoading] = useState(false);
+    const [selectedDocument, setSelectedDocument] = useState<number | null>(null);
     useEffect(() => {
 
         getDocuments()
@@ -51,6 +58,71 @@ export default function Dashboard() {
 
         }
     };
+    const handleDelete = async (
+        id: number
+    ) => {
+
+        const confirmed = window.confirm(
+            "Delete this document?"
+        );
+
+        if (!confirmed) return;
+
+        try {
+
+            await deleteDocument(id);
+
+            const docs = await getDocuments();
+
+            setDocuments(docs);
+
+            if (selectedDocument === id) {
+                setSelectedDocument(null);
+                setAnswer("");
+            }
+
+        } catch (err) {
+
+            console.error(err);
+
+            alert("Failed to delete document.");
+        }
+    };
+
+    const handleAsk = async () => {
+
+        if (!question.trim()) return;
+
+        setLoading(true);
+
+        try {
+
+            const data = await askQuestion(question,
+                selectedDocument
+            );
+            console.log(data);
+            setAnswer(data.answer);
+            console.log(data.answer);
+
+        } catch (error) {
+
+            console.log(error);
+
+        } finally {
+
+            setLoading(false);
+
+        }
+    };
+
+    const navigate = useNavigate();
+
+    const handleLogout = () => {
+        localStorage.removeItem("access");
+        localStorage.removeItem("refresh");
+
+        navigate("/login");
+    };
 
 
 
@@ -64,6 +136,7 @@ export default function Dashboard() {
                 </h1>
 
                 <button
+                    onClick={handleLogout}
                     className="rounded bg-red-500 px-4 py-2 text-white hover:bg-red-600"
                 >
                     Logout
@@ -110,16 +183,46 @@ export default function Dashboard() {
 
                                     <div
                                         key={doc.id}
-                                        className="rounded border p-3"
+                                        onClick={() => setSelectedDocument(doc.id)}
+                                        className={`cursor-pointer rounded border p-3 transition
+                    ${selectedDocument === doc.id
+                                                ? "border-blue-600 bg-blue-50"
+                                                : "hover:bg-gray-50"
+                                            }`}
                                     >
 
-                                        <h3 className="font-medium">
-                                            {doc.title}
-                                        </h3>
+                                        <div className="flex items-start justify-between">
 
-                                        <p className="text-sm text-gray-500">
-                                            {(doc.file_size / 1024 / 1024).toFixed(2)} MB
-                                        </p>
+                                            <div>
+
+                                                <h3 className="font-medium">
+                                                    {doc.title}
+                                                </h3>
+
+                                                <p className="text-sm text-gray-500">
+                                                    {(doc.file_size / 1024 / 1024).toFixed(2)} MB
+                                                </p>
+
+                                                {selectedDocument === doc.id && (
+                                                    <p className="mt-2 text-sm font-medium text-blue-600">
+                                                        ✓ Selected
+                                                    </p>
+                                                )}
+
+                                            </div>
+
+                                            <button
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    handleDelete(doc.id);
+                                                }}
+                                                className="text-red-500 hover:text-red-700"
+                                                title="Delete document"
+                                            >
+                                                🗑️
+                                            </button>
+
+                                        </div>
 
                                     </div>
 
@@ -142,12 +245,18 @@ export default function Dashboard() {
                     <textarea
                         className="mb-4 h-32 w-full rounded border p-3"
                         placeholder="Ask a question..."
+                        value={question}
+                        onChange={(e) =>
+                            setQuestion(e.target.value)
+                        }
                     />
 
                     <button
-                        className="rounded bg-green-600 px-6 py-3 text-white hover:bg-green-700"
+                        onClick={handleAsk}
+                        disabled={loading}
+                        className="rounded bg-green-600 px-6 py-3 text-white hover:bg-green-700 disabled:bg-gray-400"
                     >
-                        Ask AI
+                        {loading ? "Thinking..." : "Ask AI"}
                     </button>
 
                     <div className="mt-6 rounded bg-slate-100 p-4">
@@ -155,15 +264,15 @@ export default function Dashboard() {
                         <h3 className="mb-2 font-semibold">
                             Answer
                         </h3>
-
-                        <p className="text-gray-500">
-                            AI answer will appear here.
-                        </p>
+                        <div className="prose max-w-none">
+                            <ReactMarkdown>
+                                {answer}
+                            </ReactMarkdown>
+                        </div>
 
                     </div>
 
                 </div>
-
             </div>
 
         </div>
