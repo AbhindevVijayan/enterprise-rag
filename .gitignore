@@ -1,0 +1,25 @@
+# Python
+venv/
+__pycache__/
+*.py[cod]
+
+# Environment
+.env
+
+# Django
+media/
+staticfiles/
+db.sqlite3
+
+# Development
+.vscode/
+.idea/
+.pytest_cache/
+*.log
+
+# Tests / local files
+test_gemini.py
+
+# Generated FAISS indexes
+backend/apps/storage/faiss_indexes/
+

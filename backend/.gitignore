@@ -17,3 +17,4 @@ staticfiles/
 db.sqlite3
 
 test_gemini.py
+.vscode/
