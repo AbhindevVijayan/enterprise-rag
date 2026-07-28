@@ -1,6 +1,5 @@
 import { motion } from "framer-motion";
-import dashVideo from "../assets/dash.mp4";
-
+import videoVideo from "../assets/video.mp4"
 export default function DashboardPreview() {
     return (
         <section className="relative overflow-hidden bg-slate-950 py-32">
@@ -44,7 +43,7 @@ export default function DashboardPreview() {
                         playsInline
                         className="block h-auto w-full"
                     >
-                        <source src={dashVideo} type="video/mp4" />
+                        <source src={videoVideo} type="video/mp4" />
                     </video>
 
                 </motion.div>

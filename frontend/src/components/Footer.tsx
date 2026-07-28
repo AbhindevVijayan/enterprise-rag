@@ -69,19 +69,27 @@ export default function Footer() {
 
                     <div className="md:col-span-5">
 
-                        <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-6">
 
-                            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 font-bold">
-                                E
+                            {/* Large Logo */}
+
+                            <div className="relative flex h-24 w-24 shrink-0 items-center justify-center rounded-[1.75rem] border border-blue-400/30 bg-blue-500/10">
+
+                                <div className="h-9 w-9 rounded-full bg-blue-400 shadow-[0_0_40px_rgba(96,165,250,0.9)]" />
+
+                                <span className="absolute left-4 top-4 h-3.5 w-3.5 rounded-full bg-cyan-300" />
+
+                                <span className="absolute bottom-4 right-4 h-3.5 w-3.5 rounded-full bg-blue-500" />
+
                             </div>
 
-                            <span className="text-xl font-bold">
+                            <span className="text-3xl font-bold tracking-tight">
                                 Enterprise RAG
                             </span>
 
                         </div>
 
-                        <p className="mt-6 max-w-sm leading-7 text-slate-400">
+                        <p className="mt-8 max-w-sm text-lg leading-8 text-slate-400">
                             AI-powered document intelligence for searching,
                             understanding and interacting with your knowledge.
                         </p>
@@ -97,7 +105,6 @@ export default function Footer() {
                         </div>
 
                     </div>
-
 
                     {/* Product */}
 
@@ -220,29 +227,28 @@ export default function Footer() {
 
                     <div className="flex gap-6">
 
-                        <a
-                            href="#"
+                        <Link
+                            to="/privacy"
                             className="transition hover:text-slate-300"
                         >
                             Privacy
-                        </a>
+                        </Link>
 
-                        <a
-                            href="#"
+                        <Link
+                            to="/terms"
                             className="transition hover:text-slate-300"
                         >
                             Terms
-                        </a>
+                        </Link>
 
-                        <a
-                            href="#"
+                        <Link
+                            to="/security"
                             className="transition hover:text-slate-300"
                         >
                             Security
-                        </a>
+                        </Link>
 
                     </div>
-
                 </div>
 
             </div>

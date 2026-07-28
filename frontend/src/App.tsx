@@ -9,6 +9,7 @@ import Dashboard from "./pages/Dashboard";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Register from "./pages/Register";
 import Home from "./pages/Home";
+import LegalPage from "./pages/LegalPage";
 
 export default function App() {
 
@@ -39,6 +40,9 @@ export default function App() {
           path="/"
           element={<Home />}
         />
+        <Route path="/privacy" element={<LegalPage />} />
+        <Route path="/terms" element={<LegalPage />} />
+        <Route path="/security" element={<LegalPage />} />
 
       </Routes>
 
