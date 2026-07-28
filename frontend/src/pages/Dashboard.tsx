@@ -5,6 +5,10 @@ import {
     deleteDocument,
 
 } from "../services/documentService";
+interface ChatMessage {
+    role: "user" | "assistant";
+    content: string;
+}
 
 import { useRef } from "react";
 import { uploadDocument } from "../services/documentService";
@@ -16,7 +20,9 @@ export default function Dashboard() {
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [documents, setDocuments] = useState<Document[]>([]);
     const [question, setQuestion] = useState("");
-    const [answer, setAnswer] = useState("");
+
+    const [messages, setMessages] = useState<ChatMessage[]>([]);
+
     const [loading, setLoading] = useState(false);
     const [selectedDocument, setSelectedDocument] = useState<number | null>(null);
     useEffect(() => {
@@ -78,7 +84,7 @@ export default function Dashboard() {
 
             if (selectedDocument === id) {
                 setSelectedDocument(null);
-                setAnswer("");
+
             }
 
         } catch (err) {
@@ -97,16 +103,34 @@ export default function Dashboard() {
 
         try {
 
-            const data = await askQuestion(question,
+
+
+            const data = await askQuestion(
+                question,
                 selectedDocument
             );
-            console.log(data);
-            setAnswer(data.answer);
-            console.log(data.answer);
+
+            setMessages((prev) => [
+                ...prev,
+                {
+                    role: "user",
+                    content: question,
+                },
+                {
+                    role: "assistant",
+                    content: data.answer,
+                },
+            ]);
+
+
+
+            setQuestion("");
 
         } catch (error) {
 
             console.log(error);
+
+
 
         } finally {
 
@@ -261,14 +285,51 @@ export default function Dashboard() {
 
                     <div className="mt-6 rounded bg-slate-100 p-4">
 
-                        <h3 className="mb-2 font-semibold">
-                            Answer
+                        <h3 className="mb-4 text-xl font-semibold">
+                            Conversation
                         </h3>
-                        <div className="prose max-w-none">
-                            <ReactMarkdown>
-                                {answer}
-                            </ReactMarkdown>
+
+                        <div className="space-y-6">
+
+                            {messages.map((message, index) => (
+
+                                <div
+                                    key={index}
+                                    className={
+                                        message.role === "user"
+                                            ? "rounded-lg bg-blue-100 p-4"
+                                            : "rounded-lg border bg-white p-4"
+                                    }
+                                >
+
+                                    <div className="mb-2 font-semibold">
+
+                                        {message.role === "user"
+                                            ? "👤 You"
+                                            : "🤖 AI"}
+
+                                    </div>
+
+                                    {message.role === "assistant" ? (
+
+                                        <div className="prose max-w-none">
+                                            <ReactMarkdown>
+                                                {message.content}
+                                            </ReactMarkdown>
+                                        </div>
+
+                                    ) : (
+
+                                        <p>{message.content}</p>
+
+                                    )}
+
+                                </div>
+
+                            ))}
+
                         </div>
+
 
                     </div>
 

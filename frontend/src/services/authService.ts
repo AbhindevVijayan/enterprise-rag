@@ -21,3 +21,24 @@ export const login = async (
 
     return response.data;
 };
+
+
+export interface RegisterRequest {
+    email: string;
+    username: string;
+    password: string;
+    first_name: string;
+    last_name: string;
+}
+
+export const register = async (
+    data: RegisterRequest
+) => {
+
+    const response = await api.post(
+        "auth/register/",
+        data
+    );
+
+    return response.data;
+};
