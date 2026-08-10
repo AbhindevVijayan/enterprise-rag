@@ -102,3 +102,5 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 - The backend includes both `mysqlclient` and `psycopg2-binary`, so either MySQL or PostgreSQL can be used.
 - The frontend depends on Tailwind CSS and React Router for layout and navigation.
 
+## Athourization
+Abhindev Vijayan
