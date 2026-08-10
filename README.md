@@ -93,11 +93,12 @@ A full-stack research assistant platform with a Django backend and React + Vite 
 - Frontend dev server: `npm run dev`
 - Frontend linting: `npm run lint`
 
+## License
+
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+
 ## Notes
 
 - The backend includes both `mysqlclient` and `psycopg2-binary`, so either MySQL or PostgreSQL can be used.
 - The frontend depends on Tailwind CSS and React Router for layout and navigation.
 
-## License
-
-This repository does not include a license file. Add one if you intend to publish or share the project.
